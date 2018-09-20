@@ -1,11 +1,10 @@
-import uuid from 'uuid';
 import database from '../firebase/firebase';
 
 //Component calls an action generator
 //Action generator returns an object or function
 //Component dispatches object or function
 //Redux can't process functions -- redux thunk
-//Function runs, does wahtever it needs to, perhaps 
+//Function runs, does whatever it needs to
 //Redux store changes (runs reducers)
 
 //ADD EXPENSE
@@ -45,3 +44,27 @@ export const editExpense = (id, updates) => ({
     id,
     updates
 })
+
+//SET_EXPENSES
+export const setExpenses = (expenses) => ({
+    type: 'SET_EXPENSES',
+    expenses
+});
+
+export const startSetExpenses = () => {
+    return (dispatch) => {
+        return database.ref('expenses').once('value').then((snapshot) => {
+            const expenses = [];
+
+            snapshot.forEach((childSnapshot) => {
+                expenses.push({
+                    id: childSnapshot.key,
+                    ...childSnapshot.val()
+                });
+            });
+                
+            dispatch(setExpenses(expenses));
+        });
+    };
+};
+
